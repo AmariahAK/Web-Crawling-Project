@@ -372,4 +372,3 @@ curl http://localhost:8000/health
 - Configure alerts for crawler failures
 - Monitor API response times
 - Track MongoDB performance
-# Web-Crawling-Project
