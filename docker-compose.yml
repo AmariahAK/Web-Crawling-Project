@@ -1,0 +1,68 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: books_crawler_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: books_crawler
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/books_crawler --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: books_crawler_app
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DATABASE_NAME=books_crawler
+      - API_KEYS=dev_key_123,prod_key_456,test_key_789
+      - RATE_LIMIT_PER_HOUR=100
+      - CRAWLER_CONCURRENCY=10
+      - CRAWLER_MAX_RETRIES=3
+      - CRAWLER_TIMEOUT_SECONDS=30
+      - BASE_URL=https://books.toscrape.com
+      - SCHEDULER_INTERVAL_HOURS=24
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./reports:/app/reports
+    command: python main.py api
+
+  scheduler:
+    build: .
+    container_name: books_crawler_scheduler
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DATABASE_NAME=books_crawler
+      - CRAWLER_CONCURRENCY=10
+      - CRAWLER_MAX_RETRIES=3
+      - CRAWLER_TIMEOUT_SECONDS=30
+      - BASE_URL=https://books.toscrape.com
+      - SCHEDULER_INTERVAL_HOURS=24
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - ENVIRONMENT=production
+    volumes:
+      - ./reports:/app/reports
+    command: python main.py schedule
+
+volumes:
+  mongodb_data:
+    driver: local

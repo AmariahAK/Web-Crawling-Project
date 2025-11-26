@@ -1,0 +1,37 @@
+# Web Framework
+fastapi[all]
+uvicorn[standard]
+
+# HTTP Client
+httpx
+
+# HTML Parsing
+beautifulsoup4
+lxml
+
+# Data Validation
+pydantic
+pydantic-settings
+email-validator
+
+# Database
+motor
+pymongo
+
+# Scheduling
+apscheduler
+
+# Rate Limiting
+slowapi
+
+# Environment Variables
+python-dotenv
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx
+
+# Utilities
+python-multipart
